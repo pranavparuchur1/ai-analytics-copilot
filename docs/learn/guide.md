@@ -365,6 +365,13 @@ text ("$2.38 million", "23.4%") and looks for it in the result table and the fac
 rounding and dropped minus signs. Any number it can't find becomes a warning: "the explanation
 mentions numbers not found in the results".
 
+Measured on 55 answers: 5 flagged. One was a real model error (it wrote "dropping by
+$23,400" when the drop was $161,993; it had turned the 23.4% into dollars). Three were
+correct numbers the model calculated itself (like 100% - 59.6% = 40.4%), which the checker
+can't see in the data, and one was unclear. So the check catches real mistakes but also
+raises false alarms, and it only proves a number *exists* in the data, not that it is
+attached to the right thing.
+
 This found real bugs in the *checker itself* along the way: it didn't understand the word
 "million", and it treated "fell by 23.4%" as different from "-23.4%". Both were fixed with tests.
 

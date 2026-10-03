@@ -28,38 +28,29 @@ Follow-up answered correctly: **6/6**
 
 ## Caching
 
-10 questions asked cold, then again: median 1,310 ms cold vs 0.07 ms from the answer cache (hit rate 100%). Upper-cased, re-spaced variants without the question mark hit 100% of the time. Genuinely re-worded questions do not hit the answer cache, but share the result cache when they produce the same SQL.
+10 questions asked cold, then again: median 1,296 ms cold vs 0.06 ms from the answer cache (hit rate 100%). Upper-cased, re-spaced variants without the question mark hit 100% of the time. Genuinely re-worded questions do not hit the answer cache, but share the result cache when they produce the same SQL.
 
 ## Explanations and latency
 
-55 of 56 golden SQL questions answered end to end. The grounding check flagged a number not present in the data in **14** answer(s).
+55 of 56 golden SQL questions answered end to end. The grounding check flagged a number not present in the data in **5** answer(s).
 
-End-to-end latency: median 3,220 ms, p95 9,522 ms.
+End-to-end latency: median 3,218 ms, p95 10,298 ms.
 
 | Stage | Median ms |
 |---|---|
 | memory | 0 |
 | cache_lookup | 0 |
 | intent | 3 |
-| sql_generation | 1,912 |
-| sql_execution | 45 |
+| sql_generation | 1,935 |
+| sql_execution | 48 |
 | analysis | 3 |
-| explanation | 942 |
-| total | 3,220 |
+| explanation | 949 |
+| total | 3,218 |
 
 Flagged answers:
 
-- `q05`: The explanation mentions numbers not found in the results: 2025,. Rely on the table.
-- `q19`: The explanation mentions numbers not found in the results: 2025,. Rely on the table.
-- `q21`: The explanation mentions numbers not found in the results: 2026,. Rely on the table.
-- `q23`: The explanation mentions numbers not found in the results: 2026,. Rely on the table.
+- `q20`: The explanation mentions numbers not found in the results: 40.4%. Rely on the table.
 - `q24`: The explanation mentions numbers not found in the results: 25.0%, 10.0%. Rely on the table.
-- `q25`: The explanation mentions numbers not found in the results: 2025,. Rely on the table.
-- `q30`: The explanation mentions numbers not found in the results: 2025,. Rely on the table.
-- `q36`: The explanation mentions numbers not found in the results: $23,465,537,. Rely on the table.
-- `q45`: The explanation mentions numbers not found in the results: 2025,, 2026,. Rely on the table.
+- `q39`: The explanation mentions numbers not found in the results: $23,400. Rely on the table.
+- `q42`: The explanation mentions numbers not found in the results: 10. Rely on the table.
 - `q46`: The explanation mentions numbers not found in the results: $33,195. Rely on the table.
-- `q47`: The explanation mentions numbers not found in the results: 2024,, 31.1%. Rely on the table.
-- `q51`: The explanation mentions numbers not found in the results: 2025,. Rely on the table.
-- `q55`: The explanation mentions numbers not found in the results: 2025,. Rely on the table.
-- `q56`: The explanation mentions numbers not found in the results: 2026,. Rely on the table.

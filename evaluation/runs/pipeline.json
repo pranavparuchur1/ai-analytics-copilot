@@ -116,84 +116,84 @@
   ],
   "cache": {
     "n": 10,
-    "cold_p50_ms": 1310,
-    "warm_p50_ms": 0.07,
+    "cold_p50_ms": 1296,
+    "warm_p50_ms": 0.06,
     "warm_hit_rate": 1.0,
     "case_and_punctuation_variant_hit_rate": 1.0
   },
   "explanations": {
     "answered": 55,
     "asked": 56,
-    "flagged_ungrounded": 14,
+    "flagged_ungrounded": 5,
     "flagged": [
       {
-        "id": "q05",
-        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
-      },
-      {
-        "id": "q19",
-        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
-      },
-      {
-        "id": "q21",
-        "warning": "The explanation mentions numbers not found in the results: 2026,. Rely on the table."
-      },
-      {
-        "id": "q23",
-        "warning": "The explanation mentions numbers not found in the results: 2026,. Rely on the table."
+        "id": "q20",
+        "warning": "The explanation mentions numbers not found in the results: 40.4%. Rely on the table.",
+        "answer": "In-store revenue was $4,785,323, while online revenue was $3,238,880. In-store accounted for 59.6% of total revenue, significantly outperforming online which represented 40.4%.",
+        "facts": [
+          "Largest channel: in_store with 4,785,323 (59.6% of the 8,024,203 total across the 2 rows shown)",
+          "in_store minus online: 1,546,443 (+47.7% relative to online)",
+          "Second: online with 3,238,880; the leader is 1.48x the second"
+        ]
       },
       {
         "id": "q24",
-        "warning": "The explanation mentions numbers not found in the results: 25.0%, 10.0%. Rely on the table."
+        "warning": "The explanation mentions numbers not found in the results: 25.0%, 10.0%. Rely on the table.",
+        "answer": "Total marketing spend by channel in 2025 was $3,414,955. The largest channel was search with $1,541,390 (45.1%), followed closely by social media with $850,778 (25.0%). Email had the smallest spend at $341,160 (10.0%).",
+        "facts": [
+          "Largest channel: search with 1,541,390 (45.1% of the 3,414,955 total across the 4 rows shown)",
+          "Second: social with 850,778; the leader is 1.81x the second",
+          "Smallest channel: email with 341,160"
+        ]
       },
       {
-        "id": "q25",
-        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
+        "id": "q39",
+        "warning": "The explanation mentions numbers not found in the results: $23,400. Rely on the table.",
+        "answer": "Monthly revenue in California for 2026 shows a slight decline from August to September, dropping by $23,400 or 23.4%. The total revenue from January to September was $5,420,380, with August having the highest revenue at $691,372 and February the lowest at $501,315. The linear trend suggests a modest increase of about 2.1% per period on average. However, September's revenue was unusually low compared to the expected value based on the trend.",
+        "facts": [
+          "revenue from Jan 2026 to Sep 2026: 556,290 -> 529,378 (-4.8%)",
+          "Latest period (Sep 2026) vs previous (Aug 2026): -23.4%",
+          "Sum of revenue over the 9 periods: 5,420,380",
+          "Highest revenue: Aug 2026 (691,372); lowest: Feb 2026 (501,315)",
+          "Linear trend: +2.1% of the average per period",
+          "Sep 2026 is unusual: 529,378 vs 651,731 expected from the trend"
+        ]
       },
       {
-        "id": "q30",
-        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
-      },
-      {
-        "id": "q36",
-        "warning": "The explanation mentions numbers not found in the results: $23,465,537,. Rely on the table."
-      },
-      {
-        "id": "q45",
-        "warning": "The explanation mentions numbers not found in the results: 2025,, 2026,. Rely on the table."
+        "id": "q42",
+        "warning": "The explanation mentions numbers not found in the results: 10. Rely on the table.",
+        "answer": "Total revenue for each year:\n\n2024: $25,067,805\n2025: $30,658,638\n2026: $22,805,696\n2027: $9,364\n\nThe latest period saw a significant decline of 100.0% compared to the previous period. The sum of total revenue over the four periods is $78,541,503. The highest revenue was in 2025 and the lowest in 2027. There's a linear trend showing a decrease of approximately 42.3% of the average revenue per period. Note: Data quality warning: One row contains a date beyond 2026-10-01, which may be due to future-dated orders; consider excluding it for accurate analysis.",
+        "facts": [
+          "total_revenue from Jan 2024 to Jan 2027: 25,067,805 -> 9,364 (-100.0%)",
+          "Latest period (Jan 2027) vs previous (Jan 2026): -100.0%",
+          "Sum of total_revenue over the 4 periods: 78,541,503",
+          "Highest total_revenue: Jan 2025 (30,658,638); lowest: Jan 2027 (9,364)",
+          "Linear trend: -42.3% of the average per period"
+        ]
       },
       {
         "id": "q46",
-        "warning": "The explanation mentions numbers not found in the results: $33,195. Rely on the table."
-      },
-      {
-        "id": "q47",
-        "warning": "The explanation mentions numbers not found in the results: 2024,, 31.1%. Rely on the table."
-      },
-      {
-        "id": "q51",
-        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
-      },
-      {
-        "id": "q55",
-        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
-      },
-      {
-        "id": "q56",
-        "warning": "The explanation mentions numbers not found in the results: 2026,. Rely on the table."
+        "warning": "The explanation mentions numbers not found in the results: $33,195. Rely on the table.",
+        "answer": "Camping revenue in California decreased by $33,195 from August to September 2026, representing a 35.2% drop. The total revenue for both months was $155,175, with August seeing the highest revenue at $94,185 and September the lowest at $60,990.",
+        "facts": [
+          "revenue from Aug 2026 to Sep 2026: 94,185 -> 60,990 (-35.2%)",
+          "Latest period (Sep 2026) vs previous (Aug 2026): -35.2%",
+          "Sum of revenue over the 2 periods: 155,175",
+          "Highest revenue: Aug 2026 (94,185); lowest: Sep 2026 (60,990)"
+        ]
       }
     ],
     "stage_p50_ms": {
       "memory": 0,
       "cache_lookup": 0,
       "intent": 3,
-      "sql_generation": 1912,
-      "sql_execution": 45,
+      "sql_generation": 1935,
+      "sql_execution": 48,
       "analysis": 3,
-      "explanation": 942,
-      "total": 3220
+      "explanation": 949,
+      "total": 3218
     },
-    "total_p50_ms": 3220,
-    "total_p95_ms": 9522
+    "total_p50_ms": 3218,
+    "total_p95_ms": 10298
   }
 }

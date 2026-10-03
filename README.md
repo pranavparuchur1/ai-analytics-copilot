@@ -136,13 +136,13 @@ Pipeline results ([docs/results/pipeline.md](docs/results/pipeline.md)):
 |---|---|
 | "Why" questions: planted driver found | 3/4 |
 | Follow-up questions answered correctly | 6/6 |
-| Answer-cache hit latency | 0.07 ms vs 1.3 s cold (median) |
-| End-to-end latency, 55 golden questions | median 3.2 s, p95 9.5 s (model calls are ~90% of it) |
-| Explanation grounding | see [pipeline.md](docs/results/pipeline.md) |
+| Answer-cache hit latency | 0.06 ms vs 1.3 s cold (median) |
+| End-to-end latency, 55 golden questions | median 3.2 s, p95 10.3 s (model calls are ~90% of it) |
+| Explanation grounding check | 5 of 55 answers flagged: 1 real error caught ("$23,400" for a $161,993 drop), 3 correct derived numbers, 1 unclear ([review](docs/results/grounding_review.md)) |
 | Warehouse audit (`acp dq`) | found all 5 planted defect types + 1 unplanted |
 
 Reports: [SQL evaluation](docs/results/sql_eval.md) · [pipeline](docs/results/pipeline.md) ·
-[data quality](docs/results/data_quality.md) · [safety](docs/results/safety.md) ·
+[grounding review](docs/results/grounding_review.md) · [data quality](docs/results/data_quality.md) · [safety](docs/results/safety.md) ·
 [analysis notebook](notebooks/01_evaluation_analysis.ipynb)
 
 ## Design decisions
@@ -171,6 +171,7 @@ Observed in evaluation, not hypothetical:
 | Wrong grain | revenue per marketing dollar per state *per month* when asked per state | open |
 | Fabricated answer | weather question -> `SELECT 'Sunny' AS weather` | fixed: queries must read a table |
 | Ambiguous period | "spring 2026" read as March vs February, hiding a year-over-year defect spike | open: missed 1 of 4 "why" questions |
+| Wrong number in prose | explanation said a $23,400 drop for a $161,993 drop | caught by the grounding check and shown as a warning; not prevented |
 | Misleading share | "34% of total revenue" computed from the top-5 rows only | fixed: no shares for top-N results |
 | Correction loop stalls | ambiguous column error not repaired in 3 attempts | open |
 
