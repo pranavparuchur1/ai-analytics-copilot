@@ -172,6 +172,7 @@ Observed in evaluation, not hypothetical:
 | Fabricated answer | weather question -> `SELECT 'Sunny' AS weather` | fixed: queries must read a table |
 | Ambiguous period | "spring 2026" read as March vs February, hiding a year-over-year defect spike | open: missed 1 of 4 "why" questions |
 | Wrong number in prose | explanation said a $23,400 drop for a $161,993 drop | caught by the grounding check and shown as a warning; not prevented |
+| Benchmark misread in prose | "Texas orders -4.1% vs a 30.4% increase in 2025" when +30.4% is the *other states* | open: the "why" facts label the benchmark, the model still paraphrases it wrongly; small changes also produce noisy top segments (headlamps) |
 | Misleading share | "34% of total revenue" computed from the top-5 rows only | fixed: no shares for top-N results |
 | Correction loop stalls | ambiguous column error not repaired in 3 attempts | open |
 
