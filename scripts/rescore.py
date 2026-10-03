@@ -46,7 +46,7 @@ def main(labels: list[str]) -> None:
         for k in ("label", "model", "use_retrieval", "max_corrections", "split"):
             new[k] = summary.get(k)
         new["rescored"] = True
-        (RUNS / f"{label}.summary.json").write_text(json.dumps(new, indent=2))
+        (RUNS / f"{label}.summary.json").write_text(json.dumps(new, indent=2), encoding="utf-8")
         with (RUNS / f"{label}.jsonl").open("w") as f:
             for r in records:
                 f.write(json.dumps(r.__dict__) + "\n")

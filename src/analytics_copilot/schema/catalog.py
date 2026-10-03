@@ -124,6 +124,6 @@ def build_values(dsn: str, max_distinct: int = 200) -> dict[str, list[str]]:
                     f"WHERE {col.name} IS NOT NULL ORDER BY 1 LIMIT {max_distinct + 1}").fetchall()
                 if len(rows) <= max_distinct:
                     out[f"{table.name}.{col.name}"] = [r[0] for r in rows]
-    VALUES_JSON.write_text(json.dumps(out, indent=1) + "\n")
+    VALUES_JSON.write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")
     load_catalog.cache_clear()
     return out

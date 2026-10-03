@@ -1,0 +1,9 @@
+{
+  "q07": "Business vocabulary: read 'not counting online' as channel = 'retail', dropping outlets. The semantic layer defines physical stores in the table description; the model ignores it.",
+  "q25": "Same as q07: 'physical stores' became channel = 'retail'.",
+  "q46": "Invented a filter: added channel = 'online', which the question never mentions.",
+  "q52": "Month-over-month change for January is NULL because December 2025 was filtered out before LAG. Defensible reading, but not the answer to 'change from the previous month'.",
+  "q53": "Ambiguous column in a join; the correction loop did not recover in 3 attempts.",
+  "q54": "Semantics: averaged units (SUM(quantity)) instead of counting order lines, though the question says 'order lines'.",
+  "q55": "Wrong grain: computed revenue per marketing dollar per state per month instead of per state."
+}

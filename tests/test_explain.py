@@ -31,3 +31,14 @@ def test_invented_number_is_flagged():
 def test_years_and_small_counts_are_not_claims():
     df = pd.DataFrame({"revenue": [100.0]})
     assert ungrounded_numbers("In 2026 the top 5 products and 3 stores...", df, []) == []
+
+
+def test_scale_words():
+    df = pd.DataFrame({"total_revenue": [2378398.42]})
+    assert ungrounded_numbers("Total revenue last month was $2.38 million.", df, []) == []
+    assert ungrounded_numbers("It was $2.9 million.", df, []) == ["$2.9 million"]
+
+
+def test_year_followed_by_comma_is_not_a_claim():
+    df = pd.DataFrame({"n": [3194.0]})
+    assert ungrounded_numbers("In 2025, there were 3,194 cancelled orders.", df, []) == []

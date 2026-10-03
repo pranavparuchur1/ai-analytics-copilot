@@ -113,13 +113,18 @@ def _plain(text: str) -> str:
 
 # --- grounding check ------------------------------------------------------------------------
 
-NUMBER = re.compile(r"(?<![\w.])[-+]?\$?\d[\d,]*(?:\.\d+)?\s*(?:%|[kKmMbB](?![a-zA-Z]))?")
+NUMBER = re.compile(r"(?<![\w.])[-+]?\$?\d(?:[\d,]*\d)?(?:\.\d+)?"
+                    r"(?:\s*%|\s*(?:thousand|million|billion)\b|\s?[kKmMbB](?![a-zA-Z]))?")
+SCALE_WORDS = {"thousand": 1e3, "million": 1e6, "billion": 1e9}
 
 
 def _parse(token: str) -> float | None:
     t = token.strip().replace("$", "").replace(",", "").replace(" ", "")
     mult = 1.0
-    if t and t[-1] in "kKmMbB":
+    for word, scale in SCALE_WORDS.items():
+        if t.lower().endswith(word):
+            t, mult = t[: -len(word)], scale
+    if mult == 1.0 and t and t[-1] in "kKmMbB":
         mult = {"k": 1e3, "m": 1e6, "b": 1e9}[t[-1].lower()]
         t = t[:-1]
     t = t.rstrip("%")

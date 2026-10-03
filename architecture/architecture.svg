@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" width="1200" height="820" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#52514e"/>
+    </marker>
+    <style>
+      .box { fill: #ffffff; stroke: #c9c8c2; stroke-width: 1.2; rx: 6; }
+      .llm { fill: #fdf0ea; stroke: #eb6834; stroke-width: 1.4; }
+      .code { fill: #eef4fc; stroke: #2a78d6; stroke-width: 1.4; }
+      .db { fill: #f3f2ef; stroke: #52514e; stroke-width: 1.4; }
+      .t { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
+      .s { font-size: 12.5px; fill: #52514e; }
+      .h { font-size: 13px; font-weight: 600; fill: #7a7974; letter-spacing: 0.02em; }
+      .edge { stroke: #52514e; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #c03a39; stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+      .lbl { font-size: 11.5px; fill: #52514e; }
+    </style>
+  </defs>
+  <rect width="1200" height="820" fill="#fcfcfb"/>
+
+  <text x="40" y="44" font-size="22" font-weight="600" fill="#0b0b0b">Analytics Copilot: request path</text>
+  <text x="40" y="68" class="s">Orange = model call (Qwen2.5-Coder-7B via the inference-gateway). Blue = deterministic code. Grey = PostgreSQL.</text>
+
+  <!-- column 1: understanding -->
+  <text x="40" y="112" class="h">UNDERSTAND</text>
+  <rect x="40" y="124" width="250" height="62" class="box code"/>
+  <text x="56" y="150" class="t">Question + session</text>
+  <text x="56" y="170" class="s">web UI · REST API · CLI</text>
+
+  <rect x="40" y="210" width="250" height="62" class="box llm"/>
+  <text x="56" y="236" class="t">Conversation memory</text>
+  <text x="56" y="256" class="s">rewrite follow-ups to standalone</text>
+
+  <rect x="40" y="296" width="250" height="62" class="box code"/>
+  <text x="56" y="322" class="t">Answer cache</text>
+  <text x="56" y="342" class="s">SQLite · keyed by catalogue version</text>
+
+  <rect x="40" y="382" width="250" height="62" class="box code"/>
+  <text x="56" y="408" class="t">Schema retrieval</text>
+  <text x="56" y="428" class="s">semantic layer · join graph</text>
+
+  <rect x="40" y="468" width="250" height="62" class="box code"/>
+  <text x="56" y="494" class="t">Intent</text>
+  <text x="56" y="514" class="s">query · why · refuse (writes, PII)</text>
+
+  <path d="M165 186 V206" class="edge"/>
+  <path d="M165 272 V292" class="edge"/>
+  <path d="M165 358 V378" class="edge"/>
+  <path d="M165 444 V464" class="edge"/>
+
+  <!-- column 2: SQL path -->
+  <text x="350" y="112" class="h">QUERY PATH</text>
+  <rect x="350" y="124" width="270" height="62" class="box llm"/>
+  <text x="366" y="150" class="t">SQL generation</text>
+  <text x="366" y="170" class="s">schema · metrics · resolved dates</text>
+
+  <rect x="350" y="210" width="270" height="86" class="box code"/>
+  <text x="366" y="236" class="t">SQL validator (sqlglot AST)</text>
+  <text x="366" y="256" class="s">one SELECT · no writes/DDL/locks</text>
+  <text x="366" y="274" class="s">table + column allow-list per role</text>
+  <text x="366" y="290" class="s">denied functions · LIMIT injected</text>
+
+  <rect x="350" y="320" width="270" height="62" class="box code"/>
+  <text x="366" y="346" class="t">EXPLAIN cost guard</text>
+  <text x="366" y="366" class="s">reject plans above the ceiling</text>
+
+  <rect x="350" y="406" width="270" height="86" class="box db"/>
+  <text x="366" y="432" class="t">PostgreSQL · copilot_ro</text>
+  <text x="366" y="452" class="s">READ ONLY transaction · 5 s timeout</text>
+  <text x="366" y="470" class="s">SELECT grants only · PII columns</text>
+  <text x="366" y="486" class="s">and hr schema not granted</text>
+
+  <path d="M485 186 V206" class="edge"/>
+  <path d="M485 296 V316" class="edge"/>
+  <path d="M485 382 V402" class="edge"/>
+  <!-- correction loop -->
+  <path d="M620 250 C 680 250, 680 155, 624 155" class="edge"/>
+  <path d="M620 449 C 700 449, 700 140, 624 140" class="edge"/>
+  <text x="706" y="340" class="lbl">error fed back</text>
+  <text x="706" y="356" class="lbl">(≤ 2 corrections)</text>
+
+  <!-- safety boundary -->
+  <rect x="336" y="200" width="300" height="300" rx="10" class="dash"/>
+  <text x="500" y="518" class="lbl" fill="#c03a39">safety boundary: two independent layers</text>
+
+  <!-- intent -> paths -->
+  <path d="M290 499 H320 V155 H346" class="edge"/>
+  <text x="296" y="140" class="lbl">query</text>
+
+  <!-- column 3: why path -->
+  <text x="760" y="112" class="h">WHY PATH</text>
+  <rect x="760" y="124" width="250" height="62" class="box llm"/>
+  <text x="776" y="150" class="t">Spec extraction</text>
+  <text x="776" y="170" class="s">metric · filters · two periods</text>
+
+  <rect x="760" y="210" width="250" height="86" class="box code"/>
+  <text x="776" y="236" class="t">Driver analysis</text>
+  <text x="776" y="256" class="s">templated SQL (same validator)</text>
+  <text x="776" y="274" class="s">benchmark · decomposition</text>
+  <text x="776" y="290" class="s">stockouts · spend · promos</text>
+  <path d="M885 186 V206" class="edge"/>
+  <path d="M290 515 H310 V560 H1060 V96 H885 V120" class="edge"/>
+  <text x="1066" y="330" class="lbl">why</text>
+  <path d="M760 232 H624" class="edge"/>
+  <text x="702" y="225" class="lbl">queries</text>
+
+  <!-- bottom: analysis -->
+  <text x="40" y="616" class="h">ANALYSE AND EXPLAIN</text>
+  <rect x="40" y="628" width="200" height="74" class="box code"/>
+  <text x="56" y="654" class="t">Statistics</text>
+  <text x="56" y="674" class="s">trend · anomalies · shares</text>
+  <text x="56" y="690" class="s">correlation</text>
+
+  <rect x="262" y="628" width="200" height="74" class="box code"/>
+  <text x="278" y="654" class="t">Data quality</text>
+  <text x="278" y="674" class="s">nulls · future dates</text>
+  <text x="278" y="690" class="s">truncation · duplicates</text>
+
+  <rect x="484" y="628" width="200" height="74" class="box code"/>
+  <text x="500" y="654" class="t">Chart choice</text>
+  <text x="500" y="674" class="s">line · bar · scatter · stat</text>
+  <text x="500" y="690" class="s">→ Vega-Lite spec</text>
+
+  <rect x="706" y="628" width="200" height="74" class="box llm"/>
+  <text x="722" y="654" class="t">Explanation</text>
+  <text x="722" y="674" class="s">from computed facts only</text>
+
+  <rect x="928" y="628" width="232" height="74" class="box code"/>
+  <text x="944" y="654" class="t">Grounding check</text>
+  <text x="944" y="674" class="s">every number must appear</text>
+  <text x="944" y="690" class="s">in the result or facts</text>
+
+  <path d="M240 665 H258" class="edge"/>
+  <path d="M462 665 H480" class="edge"/>
+  <path d="M684 665 H702" class="edge"/>
+  <path d="M906 665 H924" class="edge"/>
+  <path d="M485 492 V596 H228 V624" class="edge"/>
+  <path d="M885 296 V596 H485" class="edge" style="marker-end:none"/>
+
+  <rect x="40" y="732" width="1120" height="56" rx="6" fill="#ffffff" stroke="#c9c8c2"/>
+  <text x="56" y="756" class="t">Answer</text>
+  <text x="130" y="756" class="s">text · table · chart · warnings · SQL with a plain-English walk-through · per-stage timing trace · token count</text>
+  <text x="130" y="776" class="s">stored in the answer cache and the session memory</text>
+  <path d="M1044 702 V728" class="edge"/>
+</svg>

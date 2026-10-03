@@ -137,7 +137,7 @@ def run(llm: LLM, *, label: str, split: str = "all", use_retrieval: bool = True,
     with (RUNS / f"{label}.jsonl").open("w") as f:
         for r in records:
             f.write(json.dumps(asdict(r)) + "\n")
-    (RUNS / f"{label}.summary.json").write_text(json.dumps(summary, indent=2))
+    (RUNS / f"{label}.summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary
 
 

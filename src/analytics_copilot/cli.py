@@ -101,7 +101,7 @@ def dq_cmd() -> None:
         typer.echo(f"{r['status']:<6} {r['check']:<26} {r['failing_rows']:>6}")
     out = REPO_ROOT / "docs" / "results" / "data_quality.md"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("\n".join(lines) + "\n")
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

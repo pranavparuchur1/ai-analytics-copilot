@@ -1,0 +1,199 @@
+{
+  "model": "coder",
+  "why": [
+    {
+      "id": "w01",
+      "question": "Why did revenue decrease in California last month?",
+      "spec": "revenue for ship_state = CA: 2026-09-01 to 2026-10-01 (exclusive) vs 2026-08-01 to 2026-09-01",
+      "driver_found": true,
+      "where": "finding #1",
+      "explanation_names_driver": true,
+      "top_finding": "category = Camping: revenue 230,213 -> 100,448 (-129,765); 80% of the total change vs 33% of the baseline",
+      "signals": [
+        "stockout: 12 Camping products were out of stock at 5 store(s) in CA during the current period (and not during the baseline)"
+      ],
+      "answer": "Revenue in California decreased by $161,993, or 23.4%, compared to the previous month. This decline is significantly larger than the average decrease observed in other states, which was only 13.6%. The largest contributors to this drop were camping-related categories, particularly tents and in-store sales. Notably, the Ridgeline Trailhead 2P Tent saw a substantial decline from $44,000 to $14,194, representing 18% of the total change. Additionally, stockouts of 12 Camping products across five stores in California coincided with this period, suggesting potential supply chain issues as a contributing factor.",
+      "ungrounded_warning": false
+    },
+    {
+      "id": "w02",
+      "question": "Why did returns go up in spring 2026?",
+      "spec": "return_count for all data: 2026-03-01 to 2026-04-01 (exclusive) vs 2026-02-01 to 2026-03-01",
+      "driver_found": false,
+      "where": "not found",
+      "explanation_names_driver": false,
+      "top_finding": "category = Camping: return_count 48 -> 105 (+57); 39% of the total change vs 7% of the baseline",
+      "signals": [
+        "stockout: 3 Camping products were out of stock at 3 store(s) during the current period (and not during the baseline)"
+      ],
+      "answer": "In spring 2026, returns increased by 20.3%, surpassing the previous year's growth rate of 22.4%. The camping category saw the largest increase, with returns rising from 48 to 105, representing a 57% increase and accounting for 39% of the total change. Additionally, returns due to defects increased significantly from 82 to 141, a 59% rise that contributed 40% to the overall increase. Online sales also showed a substantial boost, with returns increasing from 270 to 343, a 73% rise that accounted for 50% of the total change. The Northfork Vista Tee product experienced a notable surge in returns, jumping from 6 to 22, a 16% increase that represented 11% of the total change. California customers also had higher return rates, with returns increasing from 163 to 210, a 47% rise that accounted for 32% of the total change. These trends coincided with stockouts of three camping products across three stores during the current period.",
+      "ungrounded_warning": false
+    },
+    {
+      "id": "w03",
+      "question": "Why were online orders in Texas lower in Q3 2026 than in Q3 2025?",
+      "spec": "order_count for ship_state = TX, channel = online: 2026-07-01 to 2026-10-01 (exclusive) vs 2025-07-01 to 2025-10-01",
+      "driver_found": true,
+      "where": "signal",
+      "explanation_names_driver": true,
+      "top_finding": "subcategory = Headlamps: order_count 229 -> 175 (-54); 84% of the total change vs 15% of the baseline",
+      "signals": [
+        "marketing: social spend per day -100% vs the baseline in TX"
+      ],
+      "answer": "Online orders in Texas in Q3 2026 decreased by 4.1%, compared to a 30.4% increase in the same period in 2025. The decline was primarily driven by a significant drop in orders for headlamps and accessories, which together accounted for 84% of the total change. Additionally, specific products like the Granite Peak Meridian Sleeping Bag also saw substantial decreases. These changes coincided with a 100% decrease in social media marketing spending per day in Texas during the quarter.",
+      "ungrounded_warning": false
+    },
+    {
+      "id": "w04",
+      "question": "Why did revenue drop in September 2026 compared to August 2026?",
+      "spec": "revenue for all data: 2026-09-01 to 2026-10-01 (exclusive) vs 2026-08-01 to 2026-09-01",
+      "driver_found": true,
+      "where": "finding #1",
+      "explanation_names_driver": true,
+      "top_finding": "category = Camping: revenue 933,815 -> 558,175 (-375,640); 83% of the total change vs 33% of the baseline",
+      "signals": [
+        "stockout: 12 Camping products were out of stock at 5 store(s) during the current period (and not during the baseline)"
+      ],
+      "answer": "Revenue dropped by $453,528, or 16.0%, in September 2026 compared to August 2026. This decline coincided with a significant increase in stockouts for camping products, particularly tents, which saw a 45% decrease in revenue due to unavailability at multiple stores. The in-store channel also experienced a substantial drop, contributing 69% of the total revenue loss. These factors collectively explain the overall revenue decrease, which was higher than the previous year's decline of 11.5%.",
+      "ungrounded_warning": false
+    }
+  ],
+  "memory": [
+    {
+      "id": "c1",
+      "turns": [
+        "What was total revenue last quarter?",
+        "What about the quarter before?"
+      ],
+      "rewritten": "What was the total revenue for the quarter before last?",
+      "correct": true
+    },
+    {
+      "id": "c2",
+      "turns": [
+        "Show revenue by product category in 2025.",
+        "Only for California."
+      ],
+      "rewritten": "What was the revenue by product category in California in 2025?",
+      "correct": true
+    },
+    {
+      "id": "c3",
+      "turns": [
+        "How many completed orders did Texas have last month?",
+        "And Florida?"
+      ],
+      "rewritten": "How many completed orders did Florida have last month?",
+      "correct": true
+    },
+    {
+      "id": "c4",
+      "turns": [
+        "What were our top five products by revenue last quarter?",
+        "Show the same for units sold instead."
+      ],
+      "rewritten": "What were our top five products by units sold last quarter?",
+      "correct": true
+    },
+    {
+      "id": "c5",
+      "turns": [
+        "What was revenue by sales channel in 2025?",
+        "Break that down by quarter."
+      ],
+      "rewritten": "What was the revenue by sales channel broken down by quarter in 2025?",
+      "correct": true
+    },
+    {
+      "id": "c6",
+      "turns": [
+        "How many returns were there in 2026 for each reason?",
+        "Just the defective ones, by month."
+      ],
+      "rewritten": "How many defective returns occurred each month in 2026?",
+      "correct": true
+    }
+  ],
+  "cache": {
+    "n": 10,
+    "cold_p50_ms": 1310,
+    "warm_p50_ms": 0.07,
+    "warm_hit_rate": 1.0,
+    "case_and_punctuation_variant_hit_rate": 1.0
+  },
+  "explanations": {
+    "answered": 55,
+    "asked": 56,
+    "flagged_ungrounded": 14,
+    "flagged": [
+      {
+        "id": "q05",
+        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
+      },
+      {
+        "id": "q19",
+        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
+      },
+      {
+        "id": "q21",
+        "warning": "The explanation mentions numbers not found in the results: 2026,. Rely on the table."
+      },
+      {
+        "id": "q23",
+        "warning": "The explanation mentions numbers not found in the results: 2026,. Rely on the table."
+      },
+      {
+        "id": "q24",
+        "warning": "The explanation mentions numbers not found in the results: 25.0%, 10.0%. Rely on the table."
+      },
+      {
+        "id": "q25",
+        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
+      },
+      {
+        "id": "q30",
+        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
+      },
+      {
+        "id": "q36",
+        "warning": "The explanation mentions numbers not found in the results: $23,465,537,. Rely on the table."
+      },
+      {
+        "id": "q45",
+        "warning": "The explanation mentions numbers not found in the results: 2025,, 2026,. Rely on the table."
+      },
+      {
+        "id": "q46",
+        "warning": "The explanation mentions numbers not found in the results: $33,195. Rely on the table."
+      },
+      {
+        "id": "q47",
+        "warning": "The explanation mentions numbers not found in the results: 2024,, 31.1%. Rely on the table."
+      },
+      {
+        "id": "q51",
+        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
+      },
+      {
+        "id": "q55",
+        "warning": "The explanation mentions numbers not found in the results: 2025,. Rely on the table."
+      },
+      {
+        "id": "q56",
+        "warning": "The explanation mentions numbers not found in the results: 2026,. Rely on the table."
+      }
+    ],
+    "stage_p50_ms": {
+      "memory": 0,
+      "cache_lookup": 0,
+      "intent": 3,
+      "sql_generation": 1912,
+      "sql_execution": 45,
+      "analysis": 3,
+      "explanation": 942,
+      "total": 3220
+    },
+    "total_p50_ms": 3220,
+    "total_p95_ms": 9522
+  }
+}

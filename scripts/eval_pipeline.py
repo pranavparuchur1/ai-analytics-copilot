@@ -69,7 +69,8 @@ def eval_explanations(llm) -> dict:
             stages.setdefault(k, []).append(v)
         totals.append(ans.timings_ms["total"])
         bad = [w for w in ans.warnings if "not found in the results" in w]
-        ungrounded.append({"id": c["id"], "warning": bad[0]} if bad else None)
+        ungrounded.append({"id": c["id"], "warning": bad[0], "answer": ans.answer,
+                           "facts": ans.facts} if bad else None)
         print(f"explain {c['id']}: {ans.timings_ms['total']:.0f} ms "
               f"{'UNGROUNDED' if bad else ''}", flush=True)
     flagged = [u for u in ungrounded if u]
@@ -118,14 +119,21 @@ def eval_memory(llm) -> list[dict]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--skip-explanations", action="store_true")
+    ap.add_argument("--report-only", action="store_true",
+                    help="rebuild the markdown from evaluation/runs/pipeline.json")
     args = ap.parse_args()
+    if args.report_only:
+        saved = ROOT / "evaluation" / "runs" / "pipeline.json"
+        write_report(json.loads(saved.read_text(encoding="utf-8")))
+        return
     llm = GatewayLLM()
     results = {"model": llm.model, "why": eval_why(llm), "memory": eval_memory(llm),
                "cache": eval_cache(llm)}
     if not args.skip_explanations:
         results["explanations"] = eval_explanations(llm)
     (ROOT / "evaluation" / "runs").mkdir(parents=True, exist_ok=True)
-    (ROOT / "evaluation" / "runs" / "pipeline.json").write_text(json.dumps(results, indent=2))
+    out = ROOT / "evaluation" / "runs" / "pipeline.json"
+    out.write_text(json.dumps(results, indent=2), encoding="utf-8")
     write_report(results)
 
 
@@ -171,7 +179,7 @@ def write_report(r: dict) -> None:
             lines += ["", "Flagged answers:", ""]
             lines += [f"- `{f['id']}`: {f['warning']}" for f in e["flagged"]]
     out = ROOT / "docs" / "results" / "pipeline.md"
-    out.write_text("\n".join(lines) + "\n")
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
 
 

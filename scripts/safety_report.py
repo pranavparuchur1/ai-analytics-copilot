@@ -59,7 +59,7 @@ def main() -> None:
             lines.append(f"| `{case['id']}` | {case['expect']} | {fmt(naive)} | {fmt(parser)} |")
     out = ROOT / "docs" / "results" / "safety.md"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("\n".join(lines) + "\n")
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
 
 

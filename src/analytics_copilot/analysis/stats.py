@@ -92,6 +92,7 @@ def _time_series(df: pd.DataFrame, prof: Profile) -> list[Fact]:
         if change:
             facts.append(Fact("last_change", f"Latest period ({labels[-1]}) vs previous "
                               f"({labels[-2]}): {change}"))
+    facts.append(Fact("total", f"Sum of {measure} over the {len(y)} periods: {_fmt(y.sum())}"))
     hi, lo = int(np.argmax(y)), int(np.argmin(y))
     facts.append(Fact("extremes", f"Highest {measure}: {labels[hi]} ({_fmt(y[hi])}); lowest: "
                       f"{labels[lo]} ({_fmt(y[lo])})"))
@@ -119,6 +120,10 @@ def _breakdown(df: pd.DataFrame, prof: Profile, *, partial: bool = False) -> lis
                   + (f" ({g.iloc[0] / total * 100:.1f}% of the {_fmt(total)} total across "
                      f"the {len(g)} rows shown)"
                      if total > 0 and len(g) > 1 and not partial else ""))]
+    if len(g) == 2:
+        a, b = g.iloc[0], g.iloc[1]
+        rel = f" ({(a - b) / b * 100:+.1f}% relative to {g.index[1]})" if b else ""
+        facts.append(Fact("difference", f"{g.index[0]} minus {g.index[1]}: {_fmt(a - b)}{rel}"))
     if len(g) >= 2:
         facts.append(Fact("runner_up", f"Second: {g.index[1]} with {_fmt(g.iloc[1])}"
                           + (f"; the leader is {g.iloc[0] / g.iloc[1]:.2f}x the second"
