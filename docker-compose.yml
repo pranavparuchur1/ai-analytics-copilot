@@ -1,0 +1,21 @@
+services:
+  warehouse:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${WAREHOUSE_DB:-warehouse}
+      POSTGRES_USER: ${WAREHOUSE_ADMIN_USER:-warehouse_admin}
+      POSTGRES_PASSWORD: ${WAREHOUSE_ADMIN_PASSWORD:-admin_dev_only}
+      COPILOT_RO_PASSWORD: ${COPILOT_RO_PASSWORD:-copilot_ro_dev_only}
+    ports:
+      - "${WAREHOUSE_PORT:-5433}:5432"
+    volumes:
+      - warehouse-data:/var/lib/postgresql/data
+      - ./infrastructure/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  warehouse-data:

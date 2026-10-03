@@ -1,0 +1,36 @@
+# What generated SQL is allowed to touch. Enforced by src/analytics_copilot/safety/validator.py
+# before anything reaches the database; the copilot_ro database role
+# (infrastructure/postgres/02_roles.sh) enforces the same boundary a second time.
+
+default_schema: retail
+max_rows: 1000            # LIMIT injected/capped on the outermost query
+max_sql_chars: 8000
+max_plan_cost: 2000000    # EXPLAIN cost ceiling; stops runaway cross joins before they run
+
+tables:
+  stores: [store_id, store_name, channel, city, state, region, opened_on]
+  customers: [customer_id, city, state, signup_date, segment, loyalty_tier]
+  products: [product_id, sku, product_name, category, subcategory, brand, list_price, unit_cost,
+             launched_on, discontinued_on]
+  orders: [order_id, customer_id, store_id, channel, ordered_at, ship_state, status, promo_code]
+  order_items: [order_item_id, order_id, product_id, quantity, unit_price, discount]
+  returns: [return_id, order_item_id, returned_on, reason, refund_amount]
+  marketing_spend: [spend_date, channel, state, amount]
+  stockouts: [store_id, product_id, started_on, ended_on]
+
+# Columns that exist in the warehouse but are never readable by the copilot.
+restricted_columns: [first_name, last_name, email, phone, full_name, salary, ssn_last4]
+
+# Application-level roles: which tables each kind of user may query.
+roles:
+  analyst: "*"
+  marketing: [orders, order_items, products, stores, marketing_spend]
+
+# Table-valued functions allowed in FROM.
+table_functions: [generate_series, unnest]
+
+# Functions that can read files, sleep, change settings, open connections or have side
+# effects. Anything starting with pg_ is denied as well.
+denied_functions: [dblink, dblink_exec, lo_import, lo_export, lo_get, lo_put, set_config,
+                   current_setting, nextval, setval, query_to_xml, table_to_xml, version,
+                   txid_current, inet_server_addr, inet_client_addr]

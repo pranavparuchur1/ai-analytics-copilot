@@ -1,0 +1,38 @@
+[project]
+name = "analytics-copilot"
+version = "0.1.0"
+description = "Natural language to safe SQL, analysis, charts and explanations over a PostgreSQL warehouse, using a local LLM"
+authors = [
+    { name = "Pranav Paruchuri", email = "pranav.paruchuri6@gmail.com" }
+]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "numpy>=2.1",
+    "pandas>=2.2",
+    "psycopg[binary]>=3.2",
+    "pyyaml>=6.0",
+    "sqlglot>=26.0",
+    "typer>=0.15",
+]
+
+[project.scripts]
+acp = "analytics_copilot.cli:app"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["db: needs the PostgreSQL container (make db-up && make seed)"]
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[build-system]
+requires = ["uv_build>=0.12.22,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.9",
+]

