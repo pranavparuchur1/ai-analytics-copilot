@@ -1,0 +1,26 @@
+# inference-gateway configuration for the copilot (see scripts/serve_llm.sh).
+# The copilot sends model="coder"; only one coder worker fits on the 8 GB GPU at a time,
+# so scripts/serve_llm.sh starts whichever one is asked for on the matching port.
+
+[[models]]
+name = "coder-3b"
+hf_id = "Qwen/Qwen2.5-Coder-3B-Instruct-AWQ"
+url = "http://localhost:8012"
+max_inflight = 8
+
+[[models]]
+name = "coder"
+hf_id = "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ"
+url = "http://localhost:8011"
+max_inflight = 8
+
+[fallback]
+enabled = false
+model = "claude-opus-5-5"
+effort = "low"
+
+[rate_limit]
+requests_per_minute = 600
+
+[storage]
+db_path = "data/gateway.db"

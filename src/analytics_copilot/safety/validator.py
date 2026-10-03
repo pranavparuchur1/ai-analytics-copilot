@@ -167,6 +167,13 @@ def validate(sql: str, *, role: str = "analyst", policy: Policy | None = None) -
         if fname.startswith("pg_") or fname in policy.denied_functions:
             violations.append(Violation("denied_function", f"function {fname}() is not allowed"))
 
+    if not tables and not violations:
+        # A query that reads no table can only return constants the model made up
+        # (seen in evaluation: SELECT 'Sunny' AS weather for a weather question).
+        violations.append(Violation("no_data_source",
+                                    "the query does not read any warehouse table; answers must "
+                                    "come from the data"))
+
     if violations:
         return ValidationResult(ok=False, sql=None, violations=_dedupe(violations), tables=tables)
 

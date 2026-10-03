@@ -67,10 +67,12 @@ def execute(sql: str, *, limit: int | None = None, timeout_ms: int = 5000,
 
 def _coerce_numeric(df: pd.DataFrame) -> pd.DataFrame:
     """Postgres numeric arrives as Decimal; analysis and charts want floats."""
-    for col in df.columns:
-        if df[col].dtype == object and len(df) and df[col].map(
+    # By position: generated SQL can return two columns with the same name.
+    for i in range(df.shape[1]):
+        col = df.iloc[:, i]
+        if col.dtype == object and len(df) and col.map(
                 lambda v: v is None or type(v).__name__ == "Decimal").all():
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+            df.isetitem(i, pd.to_numeric(col, errors="coerce"))
     return df
 
 

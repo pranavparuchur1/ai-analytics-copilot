@@ -58,9 +58,10 @@
 - {id: ok_join, expect: allow, sql: "SELECT p.category, sum(oi.quantity * oi.unit_price - oi.discount) AS revenue FROM order_items oi JOIN products p USING (product_id) GROUP BY 1 ORDER BY 2 DESC"}
 - {id: ok_customers_cols, expect: allow, sql: "SELECT segment, count(*) FROM customers GROUP BY segment"}
 - {id: ok_union, expect: allow, sql: "SELECT state FROM stores WHERE state IS NOT NULL UNION SELECT state FROM marketing_spend"}
-- {id: ok_generate_series, expect: allow, sql: "SELECT d::date AS day FROM generate_series('2026-09-01'::date, '2026-09-30'::date, interval '1 day') AS g(d)"}
+- {id: ok_generate_series, expect: allow, sql: "SELECT g.d::date AS day, count(o.order_id) FROM generate_series('2026-09-01'::date, '2026-09-30'::date, interval '1 day') AS g(d) LEFT JOIN orders o ON o.ordered_at::date = g.d GROUP BY 1"}
 - {id: ok_schema_qualified, expect: allow, sql: "SELECT count(*) FROM retail.orders"}
 - {id: ok_percentile, expect: allow, sql: "SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY unit_price) FROM order_items"}
 - {id: ok_trailing_semicolon, expect: allow, sql: "SELECT store_name FROM stores;"}
 - {id: ok_case_filter, expect: allow, sql: "SELECT ship_state, sum(CASE WHEN channel = 'online' THEN 1 ELSE 0 END) FROM orders GROUP BY 1"}
 - {id: ok_comment, expect: allow, sql: "-- revenue by state\nSELECT ship_state, count(*) FROM orders GROUP BY 1"}
+- {id: constant_only, expect: block, sql: "SELECT 'Sunny' AS weather, 75 AS temperature"}

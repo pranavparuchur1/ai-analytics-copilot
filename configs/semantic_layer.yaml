@@ -1,0 +1,135 @@
+# Business meaning of the warehouse, written for the model (and for humans).
+# Schema retrieval scores tables against the question using these descriptions and
+# synonyms; the prompt includes the selected tables' columns, metric definitions and rules.
+
+company: Switchback Outfitters, an outdoor-gear retailer with stores in 10 US states and an online shop.
+
+tables:
+  orders:
+    description: One row per customer order (header). Each order is in-store or online and is attributed to a US state.
+    synonyms: [order, purchase, transaction, sale, sales, channel, state, promo, promotion, coupon, cancelled, aov, basket]
+    columns:
+      order_id: Order identifier.
+      customer_id: Who placed the order (customers.customer_id).
+      store_id: Store that made the sale; online orders use store_id 1 ("Online").
+      channel: "'in_store' or 'online'."
+      ordered_at: Timestamp the order was placed (local time).
+      ship_state: Two-letter US state the order is attributed to (store state for in-store, delivery state for online). Use this for anything "by state" or "in California".
+      status: "'completed' or 'cancelled'. Revenue counts completed orders only."
+      promo_code: Promotion code applied, or NULL.
+  order_items:
+    description: One row per product line in an order. Revenue is computed from these lines.
+    synonyms: [revenue, sales, sold, units, quantity, line, items, discount, price, margin, profit, top products, best selling]
+    columns:
+      order_item_id: Line identifier.
+      order_id: Parent order (orders.order_id).
+      product_id: Product sold (products.product_id).
+      quantity: Units on the line.
+      unit_price: Price per unit at the time of sale.
+      discount: Total discount on the line, in dollars.
+  products:
+    description: Product catalogue with category, brand and current price/cost.
+    synonyms: [product, item, sku, category, subcategory, brand, catalog, tent, jacket, camping, hiking, snow, apparel, price, cost, margin]
+    columns:
+      product_id: Product identifier.
+      sku: Stock keeping unit code.
+      product_name: Product name, e.g. 'Ridgeline Trailhead 2P Tent'.
+      category: Top-level category.
+      subcategory: Second-level category.
+      brand: Brand name.
+      list_price: Current list price (historic sales use order_items.unit_price).
+      unit_cost: Cost to the company per unit.
+      launched_on: Date first sold.
+      discontinued_on: Date it stopped selling, or NULL if still sold.
+  customers:
+    description: Customer accounts. Names, email and phone are confidential and not available.
+    synonyms: [customer, customers, buyer, shopper, member, loyalty, segment, signup, new customers, repeat]
+    columns:
+      customer_id: Customer identifier.
+      city: Home city (may be NULL).
+      state: Home state (may be NULL).
+      signup_date: Account creation date.
+      segment: "'consumer', 'pro' or 'business'."
+      loyalty_tier: "'none', 'silver' or 'gold'."
+  stores:
+    description: "Stores. Physical stores are channel IN ('retail', 'outlet'); 'not counting online' or 'physical' means channel <> 'online'. One row (store_id 1) is the online store."
+    synonyms: [store, stores, location, outlet, shop, city, region]
+    columns:
+      store_id: Store identifier (1 = Online).
+      store_name: Store name.
+      channel: "'retail', 'outlet' or 'online'."
+      city: City (NULL for online).
+      state: State (NULL for online).
+      region: "'West', 'South', 'Northeast' or 'Midwest' (NULL for online)."
+      opened_on: Opening date.
+  returns:
+    description: Returned order lines with reason and refund.
+    synonyms: [return, returns, returned, refund, refunds, defective, return rate, reason]
+    columns:
+      return_id: Return identifier.
+      order_item_id: Line that was returned (order_items.order_item_id).
+      returned_on: Date of the return.
+      reason: Free-text category such as 'defective' or 'wrong size'.
+      refund_amount: Amount refunded, in dollars.
+  marketing_spend:
+    description: Daily advertising spend by marketing channel and state.
+    synonyms: [marketing, advertising, ads, spend, campaign, social, search, email, display, roas, budget]
+    columns:
+      spend_date: Day of spend.
+      channel: "'search', 'social', 'email' or 'display' (marketing channel, not sales channel)."
+      state: Two-letter state the spend targeted.
+      amount: Spend in dollars.
+  stockouts:
+    description: Periods when a product was out of stock at a store.
+    synonyms: [stockout, stockouts, out of stock, inventory, availability, supply]
+    columns:
+      store_id: Store (stores.store_id).
+      product_id: Product (products.product_id).
+      started_on: First day out of stock.
+      ended_on: Day stock returned, or NULL if still out of stock.
+
+# How tables connect. Retrieval adds the tables needed to join the ones it selects.
+joins:
+  - [orders, order_items, "order_items.order_id = orders.order_id"]
+  - [order_items, products, "order_items.product_id = products.product_id"]
+  - [orders, customers, "orders.customer_id = customers.customer_id"]
+  - [orders, stores, "orders.store_id = stores.store_id"]
+  - [order_items, returns, "returns.order_item_id = order_items.order_item_id"]
+  - [stockouts, products, "stockouts.product_id = products.product_id"]
+  - [stockouts, stores, "stockouts.store_id = stores.store_id"]
+
+metrics:
+  revenue:
+    sql: "SUM(order_items.quantity * order_items.unit_price - order_items.discount)"
+    requires: [orders, order_items]
+    rule: "only orders with orders.status = 'completed'"
+  units_sold:
+    sql: "SUM(order_items.quantity)"
+    requires: [orders, order_items]
+    rule: "only orders with orders.status = 'completed'"
+  order_count:
+    sql: "COUNT(DISTINCT orders.order_id)"
+    requires: [orders]
+    rule: "only orders with orders.status = 'completed'"
+  average_order_value:
+    sql: "revenue / order_count"
+    requires: [orders, order_items]
+    rule: "only completed orders"
+  gross_margin:
+    sql: "SUM(order_items.quantity * (order_items.unit_price - products.unit_cost) - order_items.discount)"
+    requires: [orders, order_items, products]
+    rule: "only completed orders"
+  return_rate:
+    sql: "COUNT(DISTINCT returns.order_item_id)::numeric / COUNT(DISTINCT order_items.order_item_id)"
+    requires: [orders, order_items, returns]
+    rule: "LEFT JOIN returns; completed orders only"
+
+rules:
+  - "Dates: the data runs from 2024-01-01 to 2026-09-30. Use half-open ranges, e.g. ordered_at >= '2026-07-01' AND ordered_at < '2026-10-01'."
+  - "A named year means the whole calendar year: 'in 2025' is >= '2025-01-01' AND < '2026-01-01'. Quarters are calendar quarters (Q3 = July-September)."
+  - "'Year to date' runs from January 1 of the current year to today."
+  - "Revenue, units and order counts only include orders with status = 'completed'."
+  - "A state filter like 'in California' means orders.ship_state = 'CA'."
+  - "Write PostgreSQL. Refer to tables without a schema prefix."
+  - "Round money to 2 decimals in the final SELECT."
+  - "For results over time, group by date_trunc('month' | 'quarter' | 'year', ...) and return that period start as the time column."

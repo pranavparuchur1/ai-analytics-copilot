@@ -29,5 +29,35 @@ def db_seed(seed: int = typer.Option(42, help="Random seed; same seed, same data
     typer.echo(f"generated in {t1 - t0:.1f}s, loaded in {t2 - t1:.1f}s")
 
 
+@app.command("catalog")
+def catalog_build() -> None:
+    """Refresh configs/catalog_values.json (distinct values of low-cardinality columns)."""
+    from analytics_copilot.schema.catalog import build_values
+
+    values = build_values(get_settings().dsn())
+    typer.echo(f"wrote values for {len(values)} columns")
+
+
+@app.command("eval")
+def eval_cmd(
+    label: str = typer.Option(..., help="Name for this run (evaluation/runs/<label>.jsonl)."),
+    split: str = typer.Option("all", help="dev, test or all"),
+    model: str = typer.Option(None, help="Gateway model name (default: LLM_MODEL)."),
+    no_retrieval: bool = typer.Option(False, help="Put the whole schema in every prompt."),
+    max_corrections: int = typer.Option(2, help="Self-correction rounds (0 disables)."),
+    ids: str = typer.Option(None, help="Comma-separated question ids to run."),
+) -> None:
+    """Run the golden question set and print a summary."""
+    import json
+
+    from analytics_copilot.eval.runner import run
+    from analytics_copilot.llm import GatewayLLM
+
+    summary = run(GatewayLLM(model=model), label=label, split=split,
+                  use_retrieval=not no_retrieval, max_corrections=max_corrections,
+                  ids=ids.split(",") if ids else None)
+    typer.echo(json.dumps(summary, indent=2))
+
+
 if __name__ == "__main__":
     app()
