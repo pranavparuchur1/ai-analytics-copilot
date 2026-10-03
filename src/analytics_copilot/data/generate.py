@@ -92,7 +92,8 @@ BRANDS = ["Ridgeline", "Alder & Ash", "Northfork", "Basecamp Co", "Tidewater", "
 MODELS = ["Trailhead", "Summit", "Cascade", "Sierra", "Talus", "Juniper", "Meridian", "Basalt",
           "Sawtooth", "Aspen", "Kestrel", "Drift", "Hollow", "Vista"]
 # Named products the planted effects refer to: first product of its subcategory.
-HERO_PRODUCTS = {"Tents": "Ridgeline Trailhead 2P Tent", "Down Jackets": "Granite Peak Summit Down Jacket"}
+HERO_PRODUCTS = {"Tents": "Ridgeline Trailhead 2P Tent",
+                 "Down Jackets": "Granite Peak Summit Down Jacket"}
 
 FIRST_NAMES = ["Ava", "Liam", "Maya", "Noah", "Zoe", "Ethan", "Priya", "Lucas", "Sofia", "Omar",
                "Hana", "Diego", "Grace", "Kai", "Leila", "Mateo", "Nora", "Ravi", "Elena", "Sam",

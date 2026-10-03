@@ -56,7 +56,8 @@ ax.set_xlim(0.3, 1.0); ax.set_xlabel("execution accuracy (95% Wilson interval)")
 ax.invert_yaxis(); ax.grid(axis="x", color="#e6e5e0"); plt.tight_layout()
 df.round(3)"""),
     ("md", """## Accuracy by question category"""),
-    ("code", """by_cat = pd.DataFrame({names[k]: v.groupby("category").correct.mean() for k, v in sql.items()})
+    ("code", """by_cat = pd.DataFrame({names[k]: v.groupby("category").correct.mean()
+                       for k, v in sql.items()})
 by_cat["n"] = sql["all-v4"].groupby("category").size()
 by_cat.round(2)"""),
     ("md", """## Prompt size: what schema retrieval saves"""),
