@@ -1,0 +1,62 @@
+{
+  "n_sql": 37,
+  "execution_accuracy": 0.8108,
+  "first_attempt_accuracy": 0.7838,
+  "executed_rate": 0.9459,
+  "mean_attempts": 1.19,
+  "retrieval_recall_mean": 1.0,
+  "retrieval_all_tables_found": 1.0,
+  "mean_tables_selected": 2.43,
+  "mean_prompt_tokens": 1704,
+  "latency_p50_ms": 1945,
+  "latency_p95_ms": 20960,
+  "by_split": {
+    "test": {
+      "n": 37,
+      "ex": 0.8108
+    }
+  },
+  "by_category": {
+    "advanced": {
+      "n": 6,
+      "ex": 0.6667
+    },
+    "aggregate": {
+      "n": 6,
+      "ex": 0.8333
+    },
+    "breakdown": {
+      "n": 7,
+      "ex": 0.8571
+    },
+    "comparison": {
+      "n": 3,
+      "ex": 0.6667
+    },
+    "ranking": {
+      "n": 5,
+      "ex": 1.0
+    },
+    "relative_time": {
+      "n": 5,
+      "ex": 1.0
+    },
+    "trend": {
+      "n": 5,
+      "ex": 0.6
+    }
+  },
+  "refusal_accuracy": 0.875,
+  "refusals_stopped_by": {
+    "intent": 7,
+    "validator": 0,
+    "database": 0,
+    "none": 1
+  },
+  "label": "test-v3",
+  "model": "coder",
+  "use_retrieval": true,
+  "max_corrections": 2,
+  "split": "test",
+  "rescored": true
+}

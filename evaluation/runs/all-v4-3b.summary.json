@@ -1,0 +1,65 @@
+{
+  "n_sql": 56,
+  "execution_accuracy": 0.5714,
+  "first_attempt_accuracy": 0.5714,
+  "executed_rate": 0.8571,
+  "mean_attempts": 1.3,
+  "retrieval_recall_mean": 1.0,
+  "retrieval_all_tables_found": 1.0,
+  "mean_tables_selected": 2.39,
+  "mean_prompt_tokens": 1907,
+  "latency_p50_ms": 1206,
+  "latency_p95_ms": 5803,
+  "by_split": {
+    "dev": {
+      "n": 19,
+      "ex": 0.5789
+    },
+    "test": {
+      "n": 37,
+      "ex": 0.5676
+    }
+  },
+  "by_category": {
+    "advanced": {
+      "n": 9,
+      "ex": 0.1111
+    },
+    "aggregate": {
+      "n": 10,
+      "ex": 0.9
+    },
+    "breakdown": {
+      "n": 10,
+      "ex": 0.6
+    },
+    "comparison": {
+      "n": 5,
+      "ex": 0.2
+    },
+    "ranking": {
+      "n": 7,
+      "ex": 0.5714
+    },
+    "relative_time": {
+      "n": 8,
+      "ex": 0.75
+    },
+    "trend": {
+      "n": 7,
+      "ex": 0.7143
+    }
+  },
+  "refusal_accuracy": 1.0,
+  "refusals_stopped_by": {
+    "intent": 7,
+    "validator": 1,
+    "database": 0,
+    "none": 0
+  },
+  "label": "all-v4-3b",
+  "model": "coder-3b",
+  "use_retrieval": true,
+  "max_corrections": 2,
+  "split": "all"
+}

@@ -78,7 +78,7 @@ class ScriptedLLM:
 
     def complete(self, messages: list[dict], *, max_tokens: int = 512,
                  temperature: float = 0.0) -> LLMResponse:
-        self.calls.append(messages)
+        self.calls.append(list(messages))  # copy: callers keep appending to theirs
         if not self.replies:
             raise LLMError("ScriptedLLM ran out of replies")
         text = self.replies.pop(0)

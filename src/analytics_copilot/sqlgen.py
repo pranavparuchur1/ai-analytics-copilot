@@ -138,7 +138,8 @@ def generate(question: str, llm: LLM, *, role: str = "analyst", max_corrections:
     if use_retrieval:
         retrieval = retrieve(question, catalog)
     else:
-        retrieval = Retrieval(sorted(catalog.tables), {}, [], retrieve(question, catalog).value_hints)
+        hints = retrieve(question, catalog).value_hints
+        retrieval = Retrieval(sorted(catalog.tables), {}, [], hints)
     messages = build_messages(question, retrieval, catalog=catalog, context=context)
     out = SQLOutcome(question=question, sql=None, result=None, attempts=[], retrieval=retrieval)
     retried_empty = False

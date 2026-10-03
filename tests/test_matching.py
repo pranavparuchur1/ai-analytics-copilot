@@ -57,3 +57,10 @@ def test_wide_answer_to_comparison_question():
     pred = df([[1893904.1, 1051393.18]], ["california_revenue", "texas_revenue"])
     assert results_match(gold, pred)
     assert not results_match(gold, df([[1893904.1, 1.0]], ["a", "b"]))
+
+
+def test_year_as_number_or_truncated_date():
+    gold = df([[2024.0, 1.0], [2025.0, 2.0]], ["year", "v"])
+    pred = df([["2025-01-01T00:00:00", 2.0], ["2024-01-01T00:00:00", 1.0]], ["year", "v"])
+    assert results_match(gold, pred)
+    assert not results_match(gold, df([["2024-02-01", 1.0], ["2025-01-01", 2.0]], ["y", "v"]))

@@ -1,0 +1,62 @@
+{
+  "n_sql": 19,
+  "execution_accuracy": 0.9474,
+  "first_attempt_accuracy": 0.9474,
+  "executed_rate": 1.0,
+  "mean_attempts": 1.05,
+  "retrieval_recall_mean": 1.0,
+  "retrieval_all_tables_found": 1.0,
+  "mean_tables_selected": 2.32,
+  "mean_prompt_tokens": 1354,
+  "latency_p50_ms": 2533,
+  "latency_p95_ms": 10091,
+  "by_split": {
+    "dev": {
+      "n": 19,
+      "ex": 0.9474
+    }
+  },
+  "by_category": {
+    "advanced": {
+      "n": 3,
+      "ex": 0.6667
+    },
+    "aggregate": {
+      "n": 4,
+      "ex": 1.0
+    },
+    "breakdown": {
+      "n": 3,
+      "ex": 1.0
+    },
+    "comparison": {
+      "n": 2,
+      "ex": 1.0
+    },
+    "ranking": {
+      "n": 2,
+      "ex": 1.0
+    },
+    "relative_time": {
+      "n": 3,
+      "ex": 1.0
+    },
+    "trend": {
+      "n": 2,
+      "ex": 1.0
+    }
+  },
+  "refusal_accuracy": null,
+  "refusals_stopped_by": {
+    "intent": 0,
+    "validator": 0,
+    "database": 0,
+    "none": 0
+  },
+  "label": "dev-v3",
+  "model": "coder",
+  "use_retrieval": true,
+  "max_corrections": 2,
+  "split": "dev",
+  "rescored": true
+}

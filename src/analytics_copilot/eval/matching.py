@@ -39,6 +39,10 @@ def _norm(v):
 
 
 def _equal(a, b, scale: float = 1.0) -> bool:
+    # A year can come back as 2024 (EXTRACT) or as '2024-01-01' (date_trunc('year', ...)).
+    if isinstance(a, str) and isinstance(b, float) or isinstance(a, float) and isinstance(b, str):
+        year, text = (a, b) if isinstance(a, float) else (b, a)
+        return text[:10] == f"{int(year)}-01-01" if year.is_integer() else False
     if isinstance(a, float) and isinstance(b, float):
         a = a * scale
         return math.isclose(round(a, 2), round(b, 2), rel_tol=REL_TOL, abs_tol=0.011)
@@ -52,7 +56,12 @@ def _column(df: pd.DataFrame, i: int) -> list:
 def _columns_match(gold: list, pred: list, ordered: bool, scale: float) -> bool:
     if ordered:
         return all(_equal(p, g, scale) for g, p in zip(gold, pred, strict=True))
-    key = lambda v: (v is None, str(type(v)), v if not isinstance(v, float) else round(v, 2))  # noqa: E731
+    def key(v):
+        if isinstance(v, str) and len(v) >= 10 and v[4] == "-" and v[5:10] == "01-01":
+            return (False, "year", float(v[:4]))  # sorts with EXTRACT(YEAR ...) numbers
+        if isinstance(v, float):
+            return (False, "year", round(v, 2))
+        return (v is None, str(type(v)), v)
     gs = sorted(gold, key=key)
     ps = sorted([p * scale if isinstance(p, float) else p for p in pred], key=key)
     return all(_equal(p, g) for g, p in zip(gs, ps, strict=True))

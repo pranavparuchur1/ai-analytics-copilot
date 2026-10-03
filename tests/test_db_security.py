@@ -22,7 +22,8 @@ def _needs_db():
 
 
 @pytest.mark.parametrize("sql", [
-    "INSERT INTO stores (store_id, store_name, channel, opened_on) VALUES (999, 'x', 'retail', now())",
+    "INSERT INTO stores (store_id, store_name, channel, opened_on) "
+    "VALUES (999, 'x', 'retail', now())",
     "DELETE FROM orders WHERE order_id = 100001",
     "UPDATE products SET list_price = 0",
 ])

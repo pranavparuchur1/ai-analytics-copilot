@@ -50,9 +50,12 @@ def main() -> None:
               "boundary.")
     lines += ["", caveat, "", "## Where they disagree", "",
               "| Case | Expected | Regex | Validator |", "|---|---|---|---|"]
+
+    def fmt(blocked: bool) -> str:
+        return "block" if blocked else "allow"
+
     for case, naive, parser in rows:
         if naive != parser:
-            fmt = lambda b: "block" if b else "allow"
             lines.append(f"| `{case['id']}` | {case['expect']} | {fmt(naive)} | {fmt(parser)} |")
     out = ROOT / "docs" / "results" / "safety.md"
     out.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analytics Copilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+<style>
+:root {
+  color-scheme: light;
+  --surface: #fcfcfb; --surface-2: #f3f2ef; --rule: #e2e1dc;
+  --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #7a7974;
+  --accent: #2a78d6; --accent-ink: #1c5cab;
+  --warn: #b26b00; --bad: #c03a39; --good: #1d7a43;
+  --bar: #2a78d6; --bar-llm: #eb6834;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface: #161615; --surface-2: #1f1f1d; --rule: #34342f;
+    --ink: #f4f4f1; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+    --accent: #3987e5; --accent-ink: #86b6ef;
+    --warn: #e0a33a; --bad: #e66767; --good: #4fb878;
+    --bar: #3987e5; --bar-llm: #d95926;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #161615; --surface-2: #1f1f1d; --rule: #34342f;
+  --ink: #f4f4f1; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+  --accent: #3987e5; --accent-ink: #86b6ef;
+  --warn: #e0a33a; --bad: #e66767; --good: #4fb878;
+  --bar: #3987e5; --bar-llm: #d95926;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface); color: var(--ink);
+  font: 15px/1.55 "IBM Plex Sans", "Segoe UI", sans-serif; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  padding: 14px 24px; border-bottom: 1px solid var(--rule); }
+header h1 { font-size: 15px; font-weight: 600; margin: 0; }
+header .meta { color: var(--ink-3); font-size: 13px; }
+header .meta b { color: var(--ink-2); font-weight: 500; }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px;
+  background: var(--ink-3); vertical-align: 1px; }
+.dot.ok { background: var(--good); } .dot.bad { background: var(--bad); }
+main { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 0; max-width: 1240px;
+  margin: 0 auto; }
+#thread { padding: 8px 24px 200px; min-width: 0; }
+aside { border-left: 1px solid var(--rule); padding: 20px; font-size: 13px; color: var(--ink-2); }
+aside h2 { font-size: 12px; font-weight: 600; color: var(--ink-3); margin: 18px 0 6px; }
+aside h2:first-child { margin-top: 0; }
+aside ul { list-style: none; padding: 0; margin: 0; }
+aside li { padding: 3px 0; }
+aside button.ex { all: unset; cursor: pointer; color: var(--accent-ink); display: block;
+  padding: 4px 0; line-height: 1.4; }
+aside button.ex:hover { text-decoration: underline; }
+aside .tbl { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink); }
+aside .cols { color: var(--ink-3); font-size: 11.5px; }
+
+.turn { border-bottom: 1px solid var(--rule); padding: 22px 0 26px; }
+.q { font-size: 17px; font-weight: 500; margin: 0 0 4px; }
+.interp { color: var(--ink-3); font-size: 13px; margin: 0 0 12px; }
+.answer { max-width: 72ch; white-space: pre-wrap; margin: 10px 0 14px; }
+.status-refused .answer, .status-error .answer { color: var(--ink-2); }
+.badge { font: 500 11.5px "IBM Plex Mono", monospace; padding: 1px 6px; border: 1px solid var(--rule);
+  border-radius: 3px; color: var(--ink-2); margin-right: 6px; }
+.badge.refused { color: var(--bad); border-color: currentColor; }
+.badge.cached { color: var(--good); border-color: currentColor; }
+.stat { font-size: 34px; font-weight: 500; letter-spacing: -0.01em; margin: 8px 0 2px; }
+.stat-label { color: var(--ink-3); font-size: 13px; }
+.chart { width: 100%; max-width: 760px; margin: 6px 0 10px; }
+.warns { margin: 6px 0 10px; padding: 0; list-style: none; font-size: 13.5px; }
+.warns li { color: var(--warn); padding: 2px 0 2px 20px; position: relative; }
+.warns li::before { content: "!"; position: absolute; left: 0; top: 2px; width: 14px; height: 14px;
+  border: 1.5px solid currentColor; border-radius: 50%; font: 600 10px/12px "IBM Plex Mono";
+  text-align: center; }
+details { margin-top: 8px; }
+summary { cursor: pointer; color: var(--ink-2); font-size: 13.5px; user-select: none; }
+summary:hover { color: var(--ink); }
+pre.sql { background: var(--surface-2); padding: 12px 14px; overflow-x: auto; font-size: 12.5px;
+  line-height: 1.5; border-radius: 4px; margin: 8px 0; }
+ol.steps { margin: 6px 0; padding-left: 20px; font-size: 13.5px; color: var(--ink-2); }
+.tablewrap { overflow-x: auto; max-height: 340px; margin-top: 8px; border: 1px solid var(--rule); }
+table { border-collapse: collapse; font-size: 13px; width: 100%; }
+th, td { padding: 5px 10px; text-align: left; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th { position: sticky; top: 0; background: var(--surface-2); font-weight: 500; color: var(--ink-2); }
+td.num { text-align: right; font-family: "IBM Plex Mono", monospace; font-size: 12.5px; }
+
+/* The trace: one row per pipeline stage, bar length = time spent. */
+.trace { display: grid; grid-template-columns: 150px 1fr 70px; gap: 3px 10px; align-items: center;
+  font-size: 12.5px; margin-top: 10px; max-width: 640px; }
+.trace .name { color: var(--ink-2); font-family: "IBM Plex Mono", monospace; }
+.trace .track { height: 8px; background: var(--surface-2); border-radius: 2px; position: relative; }
+.trace .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: var(--bar); min-width: 2px; }
+.trace .fill.llm { background: var(--bar-llm); }
+.trace .ms { text-align: right; font-family: "IBM Plex Mono", monospace; color: var(--ink-3); }
+.legend { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+.legend i { display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin: 0 4px 0 10px; }
+
+form#ask { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface);
+  border-top: 1px solid var(--rule); padding: 14px 24px 18px; }
+form#ask .row { max-width: 1192px; margin: 0 auto; display: flex; gap: 10px; align-items: flex-end; }
+textarea { flex: 1; min-width: 0; resize: none; font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; height: 46px; }
+textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+select { font: inherit; font-size: 13px; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 4px; height: 46px; padding: 0 8px; }
+button.go { font: 500 14px "IBM Plex Sans"; background: var(--accent); color: #fff; border: 0;
+  border-radius: 4px; height: 46px; padding: 0 18px; cursor: pointer; }
+button.go:disabled { opacity: .55; cursor: progress; }
+.hint { max-width: 1192px; margin: 6px auto 0; font-size: 12px; color: var(--ink-3); }
+.pending { color: var(--ink-3); font-size: 14px; padding: 18px 0; }
+.empty { color: var(--ink-3); padding: 40px 0; max-width: 60ch; }
+@media (max-width: 860px) {
+  main { grid-template-columns: 1fr; }
+  aside { border-left: 0; border-top: 1px solid var(--rule); padding: 16px; }
+  #thread { padding: 8px 16px 40px; }
+  header { padding: 12px 16px; }
+  form#ask { position: static; padding: 12px 16px; }
+  .trace { grid-template-columns: 110px 1fr 60px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Analytics Copilot</h1>
+  <span class="meta">Switchback Outfitters warehouse · data as of <b id="asof">…</b></span>
+  <span class="meta"><span id="dbdot" class="dot"></span>database <b id="db">…</b></span>
+  <span class="meta">model <b id="model" class="mono">…</b></span>
+</header>
+<main>
+  <section id="thread" aria-live="polite">
+    <p class="empty" id="empty">Ask a question about sales, products, customers, stores, returns,
+      marketing spend or stock. Every query is validated and runs read-only; personal data is off limits.</p>
+  </section>
+  <aside>
+    <h2>Try</h2>
+    <div id="examples"></div>
+    <h2>Tables you can ask about</h2>
+    <ul id="tables"></ul>
+  </aside>
+</main>
+<form id="ask">
+  <div class="row">
+    <textarea id="question" placeholder="e.g. What were our top five products by revenue last quarter?" aria-label="Question"></textarea>
+    <select id="role" aria-label="Role" title="Permission role"></select>
+    <button class="go" id="go" type="submit">Ask</button>
+  </div>
+  <div class="hint">Follow-ups work: "what about Texas?", "break that down by channel". Enter to send, Shift+Enter for a new line.</div>
+</form>
+<script>
+const $ = (s) => document.querySelector(s);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text; return e; };
+let session = sessionStorageGet() || Math.random().toString(36).slice(2);
+function sessionStorageGet() { try { return sessionStorage.getItem("acp-session"); } catch { return null; } }
+try { sessionStorage.setItem("acp-session", session); } catch {}
+
+const LLM_STAGES = new Set(["memory", "sql_generation", "explanation", "spec_extraction"]);
+const fmt = (v) => typeof v === "number"
+  ? (Math.abs(v) >= 1000 ? v.toLocaleString(undefined, {maximumFractionDigits: 2})
+     : Number.isInteger(v) ? String(v) : v.toFixed(Math.abs(v) < 1 ? 4 : 2)) : (v ?? "");
+
+async function boot() {
+  const [schema, health] = await Promise.all([
+    fetch("/api/schema").then(r => r.json()),
+    fetch("/api/health").then(r => r.json()).catch(() => ({database: "unreachable"}))]);
+  $("#asof").textContent = health.as_of || "?";
+  $("#db").textContent = health.database;
+  $("#dbdot").classList.add(health.database === "ok" ? "ok" : "bad");
+  $("#model").textContent = health.model || "?";
+  for (const r of schema.roles) { const o = el("option", "", r); o.value = r; $("#role").append(o); }
+  $("#role").value = "analyst";
+  for (const q of schema.examples) {
+    const b = el("button", "ex", q); b.type = "button";
+    b.onclick = () => { $("#question").value = q; ask(); };
+    $("#examples").append(b);
+  }
+  for (const t of schema.tables) {
+    const li = el("li"); li.append(el("div", "tbl", t.name), el("div", "cols", t.columns.join(", ")));
+    $("#tables").append(li);
+  }
+}
+
+async function ask() {
+  const question = $("#question").value.trim();
+  if (!question) return;
+  $("#empty")?.remove();
+  const turn = el("article", "turn");
+  turn.append(el("p", "q", question), el("div", "pending", "Working… writing SQL, running it, analysing the result."));
+  $("#thread").append(turn); turn.scrollIntoView({behavior: "smooth", block: "start"});
+  $("#go").disabled = true; $("#question").value = "";
+  try {
+    const r = await fetch("/api/ask", {method: "POST", headers: {"content-type": "application/json"},
+      body: JSON.stringify({question, session_id: session, role: $("#role").value})});
+    const a = await r.json();
+    if (!r.ok) throw new Error(a.detail || r.statusText);
+    render(turn, a);
+  } catch (e) {
+    turn.querySelector(".pending").textContent = "Request failed: " + e.message;
+  } finally { $("#go").disabled = false; $("#question").focus(); }
+}
+
+function render(turn, a) {
+  turn.className = "turn status-" + a.status;
+  turn.querySelector(".pending").remove();
+  if (a.standalone_question && a.standalone_question !== a.question)
+    turn.append(el("p", "interp", "Interpreted as: " + a.standalone_question));
+  const badges = el("div");
+  badges.append(el("span", "badge" + (a.status !== "ok" ? " refused" : ""), a.status === "ok" ? a.intent : a.status));
+  if (a.cached) badges.append(el("span", "badge cached", "cached"));
+  turn.append(badges);
+
+  const single = a.status === "ok" && a.row_count === 1 && a.columns.length === 1 && typeof a.rows[0][0] === "number";
+  if (single) { turn.append(el("div", "stat mono", fmt(a.rows[0][0])), el("div", "stat-label", a.columns[0].replaceAll("_", " "))); }
+  turn.append(el("p", "answer", a.answer));
+
+  if (a.chart) {
+    const c = el("div", "chart"); turn.append(c);
+    const dark = matchMedia("(prefers-color-scheme: dark)").matches && document.documentElement.dataset.theme !== "light";
+    const spec = structuredClone(a.chart);
+    if (dark) Object.assign(spec.config, {background: "#161615"},
+      {axis: {...spec.config.axis, labelColor: "#c3c2b7", titleColor: "#c3c2b7", gridColor: "#34342f", domainColor: "#34342f", tickColor: "#34342f"},
+       legend: {...spec.config.legend, labelColor: "#c3c2b7"}});
+    vegaEmbed(c, spec, {actions: false, renderer: "svg"}).catch(() => c.remove());
+  }
+  if (a.warnings?.length) {
+    const ul = el("ul", "warns"); a.warnings.forEach(w => ul.append(el("li", "", w))); turn.append(ul);
+  }
+  if (a.columns?.length) {
+    const d = el("details"); d.append(el("summary", "", `Data · ${a.row_count} row${a.row_count === 1 ? "" : "s"}`));
+    const wrap = el("div", "tablewrap"), t = el("table"), hr = el("tr");
+    a.columns.forEach(c => hr.append(el("th", "", c))); t.append(hr);
+    for (const row of a.rows) { const tr = el("tr");
+      row.forEach(v => tr.append(el("td", typeof v === "number" ? "num" : "", fmt(v)))); t.append(tr); }
+    wrap.append(t); d.append(wrap); turn.append(d);
+  }
+  if (a.sql) {
+    const d = el("details"); d.append(el("summary", "", "SQL and what it does"));
+    const ol = el("ol", "steps"); (a.sql_steps || []).forEach(s => ol.append(el("li", "", s)));
+    d.append(ol, el("pre", "sql mono", a.sql));
+    if (a.attempts?.length > 1) {
+      d.append(el("div", "legend", `Self-corrected after ${a.attempts.length - 1} failed attempt(s):`));
+      a.attempts.filter(x => x.error).forEach(x => d.append(el("div", "legend mono", "· " + x.stage + ": " + x.error)));
+    }
+    turn.append(d);
+  }
+  const t = a.timings_ms || {}, entries = Object.entries(t).filter(([k]) => k !== "total");
+  if (entries.length) {
+    const d = el("details"); d.append(el("summary", "", `Trace · ${fmt(t.total ?? t.cache)} ms · ${a.tokens} tokens`));
+    const grid = el("div", "trace"), max = Math.max(...entries.map(([, v]) => v), 1);
+    for (const [k, v] of entries) {
+      const track = el("div", "track"), fill = el("div", "fill" + (LLM_STAGES.has(k) ? " llm" : ""));
+      fill.style.width = (v / max * 100) + "%"; track.append(fill);
+      grid.append(el("span", "name", k), track, el("span", "ms", fmt(v) + " ms"));
+    }
+    const lg = el("div", "legend"); lg.innerHTML = '<i style="background:var(--bar-llm)"></i>model call<i style="background:var(--bar)"></i>code / database';
+    d.append(grid, lg); turn.append(d);
+  }
+}
+
+$("#ask").addEventListener("submit", (e) => { e.preventDefault(); ask(); });
+$("#question").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } });
+boot();
+</script>
+</body>
+</html>

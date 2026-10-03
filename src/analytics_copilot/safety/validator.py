@@ -55,7 +55,8 @@ class Policy:
     def from_yaml(cls, path: Path) -> Policy:
         raw = yaml.safe_load(path.read_text())
         tables = {t: frozenset(cols) for t, cols in raw["tables"].items()}
-        roles = {r: frozenset(tables) if v == "*" else frozenset(v) for r, v in raw["roles"].items()}
+        roles = {r: frozenset(tables) if v == "*" else frozenset(v)
+                 for r, v in raw["roles"].items()}
         return cls(
             default_schema=raw["default_schema"], max_rows=raw["max_rows"],
             max_sql_chars=raw["max_sql_chars"], max_plan_cost=float(raw["max_plan_cost"]),

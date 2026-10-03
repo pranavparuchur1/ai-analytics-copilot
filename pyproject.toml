@@ -7,6 +7,7 @@ authors = [
 ]
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "fastapi>=0.142.2",
     "httpx>=0.28.1",
     "numpy>=2.1",
     "pandas>=2.2",
@@ -14,6 +15,8 @@ dependencies = [
     "pyyaml>=6.0",
     "sqlglot>=26.0",
     "typer>=0.15",
+    "uvicorn>=0.54.0",
+    "vl-convert-python>=1.9.0.post1",
 ]
 
 [project.scripts]
@@ -36,3 +39,6 @@ dev = [
     "pytest>=9.1.1",
     "ruff>=0.9",
 ]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]

@@ -17,5 +17,27 @@ services:
       timeout: 3s
       retries: 30
 
+  # The web app. Start with `docker compose --profile app up --build`.
+  # The LLM is not containerised here: it runs on the GPU in WSL behind the inference-gateway
+  # (scripts/serve_llm.sh) and the container reaches it through host.docker.internal.
+  copilot:
+    profiles: ["app"]
+    build: .
+    depends_on:
+      warehouse:
+        condition: service_healthy
+    environment:
+      WAREHOUSE_HOST: warehouse
+      WAREHOUSE_PORT: 5432
+      WAREHOUSE_DB: ${WAREHOUSE_DB:-warehouse}
+      COPILOT_RO_PASSWORD: ${COPILOT_RO_PASSWORD:-copilot_ro_dev_only}
+      LLM_BASE_URL: ${LLM_BASE_URL_DOCKER:-http://host.docker.internal:8000/v1}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-coder}
+    ports:
+      - "8765:8765"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   warehouse-data:

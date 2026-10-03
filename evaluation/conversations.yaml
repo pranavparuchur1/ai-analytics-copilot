@@ -1,0 +1,48 @@
+# Multi-turn conversations for conversation memory. The last turn is a follow-up that only
+# makes sense with the earlier turns; it is scored by execution accuracy against gold_sql.
+
+- id: c1
+  turns: ["What was total revenue last quarter?", "What about the quarter before?"]
+  gold_sql: |
+    SELECT ROUND(SUM(oi.quantity * oi.unit_price - oi.discount), 2)
+    FROM orders o JOIN order_items oi ON oi.order_id = o.order_id
+    WHERE o.status = 'completed' AND o.ordered_at >= '2026-04-01' AND o.ordered_at < '2026-07-01'
+- id: c2
+  turns: ["Show revenue by product category in 2025.", "Only for California."]
+  gold_sql: |
+    SELECT p.category, ROUND(SUM(oi.quantity * oi.unit_price - oi.discount), 2)
+    FROM orders o JOIN order_items oi ON oi.order_id = o.order_id
+    JOIN products p ON p.product_id = oi.product_id
+    WHERE o.status = 'completed' AND o.ship_state = 'CA'
+      AND o.ordered_at >= '2025-01-01' AND o.ordered_at < '2026-01-01'
+    GROUP BY p.category
+- id: c3
+  turns: ["How many completed orders did Texas have last month?", "And Florida?"]
+  gold_sql: |
+    SELECT COUNT(*) FROM orders WHERE status = 'completed' AND ship_state = 'FL'
+      AND ordered_at >= '2026-09-01' AND ordered_at < '2026-10-01'
+- id: c4
+  turns: ["What were our top five products by revenue last quarter?",
+          "Show the same for units sold instead."]
+  order_matters: true
+  gold_sql: |
+    SELECT p.product_name, SUM(oi.quantity) AS units
+    FROM orders o JOIN order_items oi ON oi.order_id = o.order_id
+    JOIN products p ON p.product_id = oi.product_id
+    WHERE o.status = 'completed' AND o.ordered_at >= '2026-07-01' AND o.ordered_at < '2026-10-01'
+    GROUP BY p.product_name ORDER BY units DESC LIMIT 5
+- id: c5
+  turns: ["What was revenue by sales channel in 2025?", "Break that down by quarter."]
+  gold_sql: |
+    SELECT date_trunc('quarter', o.ordered_at) AS quarter, o.channel,
+           ROUND(SUM(oi.quantity * oi.unit_price - oi.discount), 2)
+    FROM orders o JOIN order_items oi ON oi.order_id = o.order_id
+    WHERE o.status = 'completed' AND o.ordered_at >= '2025-01-01' AND o.ordered_at < '2026-01-01'
+    GROUP BY 1, 2
+- id: c6
+  turns: ["How many returns were there in 2026 for each reason?",
+          "Just the defective ones, by month."]
+  gold_sql: |
+    SELECT date_trunc('month', returned_on) AS month, COUNT(*) FROM returns
+    WHERE reason = 'defective' AND returned_on >= '2026-01-01' AND returned_on < '2027-01-01'
+    GROUP BY 1

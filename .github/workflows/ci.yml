@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      warehouse:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: warehouse
+          POSTGRES_USER: warehouse_admin
+          POSTGRES_PASSWORD: admin_dev_only
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U warehouse_admin -d warehouse"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      PGHOST: localhost
+      PGPORT: "5433"
+      PGPASSWORD: admin_dev_only
+      POSTGRES_USER: warehouse_admin
+      POSTGRES_DB: warehouse
+      COPILOT_RO_PASSWORD: copilot_ro_dev_only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.22"
+      - run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check src tests scripts
+      - name: Create schema and the read-only role (what the container init does locally)
+        run: |
+          psql -v ON_ERROR_STOP=1 -U warehouse_admin -d warehouse -f infrastructure/postgres/01_schema.sql
+          bash infrastructure/postgres/02_roles.sh
+      - name: Seed synthetic data
+        run: uv run acp db seed
+      - name: Gold queries validate and run
+        run: uv run python scripts/check_golden.py
+      - name: Tests (validator, matching, dates, explanations, database security)
+        run: uv run pytest -q
+      - name: Safety report is up to date
+        run: |
+          uv run python scripts/safety_report.py > /dev/null
+          git diff --exit-code docs/results/safety.md

@@ -62,7 +62,9 @@ def execute(sql: str, *, limit: int | None = None, timeout_ms: int = 5000,
     df = pd.DataFrame(rows, columns=cols)
     df = _coerce_numeric(df)
     return QueryResult(df=df, elapsed_ms=(time.perf_counter() - t0) * 1000,
-                       truncated=limit is not None and len(df) >= limit, plan_cost=cost)
+                       truncated=limit is not None and limit >= policy.max_rows
+                       and len(df) >= limit,
+                       plan_cost=cost)
 
 
 def _coerce_numeric(df: pd.DataFrame) -> pd.DataFrame:

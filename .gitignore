@@ -6,5 +6,6 @@ __pycache__/
 .ruff_cache/
 data/
 logs/
-evaluation/runs/
+.claude/
 .ipynb_checkpoints/
+logs_*.txt
