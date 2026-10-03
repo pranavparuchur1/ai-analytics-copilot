@@ -1,6 +1,8 @@
 .PHONY: install db-up db-down seed catalog dq test test-unit lint fmt safety-report check-golden eval eval-test eval-pipeline serve llm llm-3b docker-build docker-up requirements clean
 
 UV ?= uv
+# This checkout as a WSL path (C:/x/y -> /mnt/c/x/y), for the GPU scripts that run in WSL.
+WSL_DIR := $(subst C:/,/mnt/c/,$(subst c:/,/mnt/c/,$(CURDIR)))
 
 install:            ## install Python dependencies
 	$(UV) sync
@@ -51,10 +53,10 @@ serve:              ## web UI + API on http://localhost:8765
 	$(UV) run acp serve
 
 llm:                ## start Qwen2.5-Coder-7B + inference-gateway in WSL
-	wsl -d Ubuntu -- bash -lc 'bash "$$(wslpath "$(CURDIR)")/scripts/serve_llm.sh" 7b'
+	wsl -d Ubuntu -- bash -lc 'bash $(WSL_DIR)/scripts/serve_llm.sh 7b'
 
 llm-3b:
-	wsl -d Ubuntu -- bash -lc 'bash "$$(wslpath "$(CURDIR)")/scripts/serve_llm.sh" 3b'
+	wsl -d Ubuntu -- bash -lc 'bash $(WSL_DIR)/scripts/serve_llm.sh 3b'
 
 docker-build:
 	docker compose --profile app build
